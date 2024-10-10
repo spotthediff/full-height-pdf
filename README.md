@@ -1,13 +1,12 @@
 # Full Height PDF
 
-This extension can be use to create Full Height PDF from Markdown.   
+This is a VSCode extension can be use to create Full Height PDF from Markdown.   
 
 The extension can export PDF from context menu of editor or explorer.  
 
 ## Requirements
 - VSCode 1.93 or later
 - **Google Chrome** is also need to work because this extension uses puppeteer internally in order to create PDF .  
-
 
 ## Extension Settings
 
@@ -18,11 +17,11 @@ Specify the path of Chrome executable to let the extension use another chrome in
 ### Export Path
 Specify the Path that you want to export. (If this is not specified, the extension will prompt for the output location each time) 
 ### General Font Family
-Specify the font family for `h*` and `td` tag.
+Specify the font family for `h*` and `td` tag. (CSS Font family notation)
 ### Line Height
 Line Height of normal paragraph, [length](https://developer.mozilla.org/ja/docs/Web/CSS/length) can be use to specify. 
 ### Mono Font Family
-Specify the font family for `pre` and `code` tag.
+Specify the font family for `pre` and `code` tag. (CSS Font family Notation)
 ### PDF Title
 Specify the title of exported PDF
 ### Style Sheet
