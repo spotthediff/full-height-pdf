@@ -1,0 +1,183 @@
+{
+  "name": "full-height-pdf",
+  "displayName": "Full Height PDF",
+  "description": "Export full height pdf",
+  "version": "0.0.1",
+  "engines": {
+    "vscode": "^1.93.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [],
+  "main": "./out/extension.js",
+  "contributes": {
+    "configuration": {
+      "title": "Full Height PDF",
+      "properties": {
+        "full-height-pdf.executablePath": {
+          "type": "string",
+          "default": "",
+          "description": "Path of Chrome Executable"
+        },
+        "full-height-pdf.exportPath": {
+          "type": "string",
+          "default": "",
+          "description": "PDF output Path (If this is not specified, the extension will prompt for the output location each time) "
+        },
+        "full-height-pdf.PDFTitle": {
+          "type": "string",
+          "default": "",
+          "description": "Title of exported PDF"
+        },
+        "full-height-pdf.widthFormat": {
+          "type": "string",
+          "enum": [
+            "Letter",
+            "Legal",
+            "Tabloid",
+            "Ledger",
+            "A0",
+            "A1",
+            "A2",
+            "A3",
+            "A4",
+            "A5",
+            "A6"
+          ],
+          "default": "A4",
+          "description": "Choose width of document (This is ignored if Use Original Width is enabled)"
+        },
+        "full-height-pdf.useOriginalWidth": {
+          "type": "boolean",
+          "default": true,
+          "description": "Export PDF with original Page Width (widthFormat is ignored if this is checked)"
+        },
+        "full-height-pdf.lineHeight": {
+          "type": "string",
+          "default": "",
+          "description": "Line Height of normal paragraph"
+        },
+        "full-height-pdf.generalFontFamily": {
+          "type": "string",
+          "default": "",
+          "markdownDescription": "Font family for \"h*\",  \"p\" or \"td\" tag **Specify with CSS font-family notation**"
+        },
+        "full-height-pdf.monoFontFamily": {
+          "type": "string",
+          "default": "",
+          "markdownDescription": "Font family for monofont Specify with **CSS font-family notation**"
+        },
+        "full-height-pdf.styleSheet": {
+          "type": "string",
+          "default": "",
+          "markdownDescription": "Path for style sheet (Stylesheet must be saved with **UTF-8 without BOM** encoding or prefix [@charset](https://developer.mozilla.org/en-US/docs/Web/CSS/@charset) with correct encoding)"
+        },
+        "full-height-pdf.encoding": {
+          "type": "string",
+          "default": "none",
+          "enum": [
+            "none",
+            "utf-8",
+            "ibm866",
+            "iso-8859-2",
+            "iso-8859-3",
+            "iso-8859-4",
+            "iso-8859-5",
+            "iso-8859-6",
+            "iso-8859-7",
+            "iso-8859-8",
+            "iso-8859-8i",
+            "iso-8859-10",
+            "iso-8859-13",
+            "iso-8859-14",
+            "iso-8859-15",
+            "iso-8859-16",
+            "koi8-r",
+            "koi8-u",
+            "macintosh",
+            "windows-874",
+            "windows-1250",
+            "windows-1251",
+            "windows-1252",
+            "windows-1253",
+            "windows-1254",
+            "windows-1255",
+            "windows-1256",
+            "windows-1257",
+            "windows-1258",
+            "x-mac-cyrillic",
+            "gbk",
+            "gb18030",
+            "hz-gb-2312",
+            "big5",
+            "euc-jp",
+            "iso-2022-jp",
+            "shift-jis",
+            "euc-kr",
+            "iso-2022-kr",
+            "utf-16be",
+            "utf-16le",
+            "x-user-defined",
+            "replacement"
+          ],
+          "markdownDescription": "Choose an encoding (This option be enable only when 'Export PDF' from context menu of vscode explorer.   Please check [Encoding API Encodings - Web APIs | MDN](https://developer.mozilla.org/en-US/docs/Web/API/Encoding_API/Encodings) for each encoding"
+        }
+      }
+    },
+    "commands": [
+      {
+        "command": "full-height-pdf.exportPDF",
+        "title": "Export Full Height PDF"
+      },
+      {
+        "command": "full-height-pdf.exportPDFFromExplorerContext",
+        "title": "Export Full Height PDF"
+      }
+    ],
+    "menus": {
+      "editor/context": [
+        {
+          "when": "editorLangId == markdown",
+          "command": "full-height-pdf.exportPDF",
+          "submenu": "full-height-pdf.operations",
+          "group": "fullheightpdf@1"
+        }
+      ],
+      "explorer/context": [
+        {
+          "command": "full-height-pdf.exportPDFFromExplorerContext",
+          "when": "resourceExtname == .md && resourceScheme == file && resourceLangId == markdown"
+        }
+      ]
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "pretest": "npm run compile && npm run lint",
+    "lint": "eslint src",
+    "test": "vscode-test"
+  },
+  "devDependencies": {
+    "@types/markdown-it": "^14.1.2",
+    "@types/mocha": "^10.0.7",
+    "@types/node": "20.x",
+    "@types/vscode": "^1.93.0",
+    "@typescript-eslint/eslint-plugin": "^8.3.0",
+    "@typescript-eslint/parser": "^8.3.0",
+    "@vscode/test-cli": "^0.0.10",
+    "@vscode/test-electron": "^2.4.1",
+    "@vscode/vsce": "^3.1.1",
+    "eslint": "^9.9.1",
+    "typescript": "^5.5.4"
+  },
+  "dependencies": {
+    "@vscode/markdown-it-katex": "^1.1.0",
+    "iconv-lite": "^0.6.3",
+    "jschardet": "^3.1.4",
+    "markdown-it": "^14.1.0",
+    "puppeteer-core": "^23.4.1"
+  }
+}
