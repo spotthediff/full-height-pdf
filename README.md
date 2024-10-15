@@ -6,7 +6,7 @@ The extension can export PDF from context menu of editor or explorer.
 
 ## Requirements
 - VSCode 1.93 or later
-- **Google Chrome** is also need to work because this extension uses puppeteer internally in order to create PDF .  
+- Installation of Google Chrome
 
 ## Extension Settings
 
@@ -27,8 +27,4 @@ Specify the title of exported PDF
 ### Style Sheet
 Path for the stylesheet that applied to exported PDF (This option has lower priority than each options in Setting),
 The style sheet must be encoded by *UTF-8 without BOM* or prefix [@charset](https://developer.mozilla.org/ja/docs/Web/CSS/@charset) with correct encoding
-### Width Format
-Choose the length of width of Exported PDF
-### Use Original Width
-Export PDF with original Markdown Page width (`Width Format` option is ignored if this option be enable), enabled by default.  
 

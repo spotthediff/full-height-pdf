@@ -11,7 +11,7 @@ import jschardet from "jschardet";
 
 async function addStyle(page: puppeteer.Page): Promise<void> {
     const css_path = expanduser(vscode.workspace.getConfiguration("full-height-pdf")["styleSheet"]);
-    if (css_path !=="" && fs.existsSync(css_path) && fs.lstatSync(css_path).isFile()) {
+    if (css_path !== "" && fs.existsSync(css_path) && fs.lstatSync(css_path).isFile()) {
         await page.addStyleTag({ path: css_path });
     }
     let output_line_height = "";
@@ -51,7 +51,6 @@ async function openWithEncodingDetect(filepath: string, force_encoding?: string)
         const read_buf = new Uint8Array(filesize);
         await f.read(read_buf);
         const guess_encoding = jschardet.detect(Buffer.from(read_buf));
-
         let encoding_name = guess_encoding.encoding;
         if (guess_encoding.encoding === "windows-1252") {
             encoding_name = "shift-jis";
@@ -60,15 +59,13 @@ async function openWithEncodingDetect(filepath: string, force_encoding?: string)
             encoding_name = force_encoding;
         }
         const text_decoder = new TextDecoder(encoding_name, { fatal: false });
-        const decoded_string = text_decoder.decode(read_buf);
-        console.log(decoded_string);
-        return decoded_string;
+        return text_decoder.decode(read_buf);
     } finally {
         await f.close();
     }
 }
 
-function paperWidth(sizename: string): string | undefined {
+function paperWidth(sizename: string): string {
     const s = sizename.toLocaleLowerCase();
     switch (s) {
         case "legal":
@@ -115,38 +112,35 @@ function expanduser(text: string): string {
     return text;
 }
 
-async function getCorrectHeight(sizename: string, markdowntext: string): Promise<number> {
+async function calculatePageHeight(sizename: string, markdowntext: string): Promise<number> {
     const width = paperWidth(sizename);
     const mdtext = convertmd2htmltext(markdowntext);
-    const template = `<html><head><title>Calculate Width</title></head><body><div id="container" style="width: ${width}; overflow-y: auto; word-break: break-all;">${mdtext}</div><style></style></body></html>`;
+    // Render all content in the container that has fixed width  
+
+    const template = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>Calculate Width</title></head><body><div id="container">${mdtext}</div></body></html>`;
+
     const text_encoder = new TextEncoder();
     const encoded_string = text_encoder.encode(template);
     const buffer = Buffer.from(encoded_string);
     const launch_option: puppeteer.PuppeteerLaunchOptions = {};
-    const executablePath = vscode.workspace.getConfiguration("full-height-pdf")["executablePath"];
-    if (executablePath !== "") {
-        if (fs.existsSync(executablePath)) {
-            launch_option.executablePath = executablePath;
-        } else {
-            await vscode.window.showWarningMessage("Chrome executable does not exists", { modal: true });
-        }
-    }
     launch_option.channel = "chrome";
+    //launch_option.headless = false;
     const browser = await puppeteer.launch(launch_option);
     try {
         const page = await browser.newPage();
-        try {
-            //page.setDefaultTimeout(0);
-            await page.goto(`data:text/html;base64,${buffer.toString("base64")}`, {waitUntil: "domcontentloaded"});
-            await addStyle(page);
-            const pageHeight = await page.evaluate(() => {
-                const container = document.getElementById("container");
-                return Math.max(container!!.clientHeight, container!!.scrollHeight);
-            });
-            return pageHeight;
-        } finally {
-            await page.close();
-        }
+        page.setDefaultTimeout(0);
+        await page.goto(`data:text/html;base64,${buffer.toString("base64")}`/*, { waitUntil: "domcontentloaded" }*/);
+        await page.addStyleTag({
+            content: `
+                div#container {
+                width: ${width};
+                }`});
+        await addStyle(page);
+        const pageHeight = await page.evaluate(() => {
+            const container = document.getElementById("container");
+            return Math.max(container!!.clientHeight, container!!.scrollHeight); // get Tallest Height in the container Height
+        });
+        return pageHeight;
     } finally {
         await browser.close();
     }
@@ -157,17 +151,12 @@ function convertmd2htmltext(text: string): string {
     return md.render(text);
 }
 
-async function exportPath(): Promise<string | undefined> {
-    let output_path: string = expanduser(vscode.workspace.getConfiguration("full-height-pdf")["exportPath"]);
-    try {
-        await fs.promises.access(output_path, fs.constants.F_OK);
-    } catch (e: any) {
-        const selected_uri = await vscode.window.showSaveDialog({ filters: { "PDF": ["pdf"] } });
-        if (selected_uri === undefined) {
-            return undefined;
-        }
-        output_path = selected_uri!!.fsPath;
+async function exportPath(): Promise<string> {
+    const selected_uri = await vscode.window.showSaveDialog({ filters: { "PDF": ["pdf"] } });
+    if (selected_uri === undefined) {
+        return "";
     }
+    const output_path = selected_uri!!.fsPath;
     return output_path;
 }
 
@@ -221,8 +210,11 @@ export async function exportPDF(fileUri?: any) {
     const text_encoder = new TextEncoder();
     const encoded_string = text_encoder.encode(output_html);
     const buffer = Buffer.from(encoded_string);
-    const size = vscode.workspace.getConfiguration("full-height-pdf")["widthFormat"].toLowerCase();
+    //const size = vscode.workspace.getConfiguration("full-height-pdf")["widthFormat"].toLowerCase();
     const launch_option: puppeteer.PuppeteerLaunchOptions = {};
+    launch_option.args = ["--no-sandbox", "--disable-setuid-sandbox"];
+    launch_option.channel = "chrome";
+    launch_option.headless = true;
     const executablePath = vscode.workspace.getConfiguration("full-height-pdf")["executablePath"];
     if (executablePath !== "") {
         if (!fs.existsSync(executablePath)) {
@@ -230,23 +222,24 @@ export async function exportPDF(fileUri?: any) {
             return;
         }
         launch_option.executablePath = executablePath;
-        launch_option.args = ["--no-sandbox", "--disable-setuid-sandbox"];
     }
-    launch_option.channel = "chrome";
-    const browser = await puppeteer.launch(launch_option);
-    const page = await browser.newPage();
-    page.setDefaultTimeout(0);
-    await page.goto(`data:text/html;base64,${buffer.toString("base64")}`);
-    addStyle(page);
     const export_path = await exportPath();
-    if (export_path === undefined) {
+    if (export_path === "") {
         await vscode.window.showInformationMessage("output path is not specified");
+        console.log("exported_path is blank string");
         return;
     }
-    let width = paperWidth(size);
-    let pageHeight;
-    await vscode.window.withProgress({ title: "Exporting PDF...", location: vscode.ProgressLocation.Notification }, async (progress, token) => {
-        if (vscode.workspace.getConfiguration("full-height-pdf")["useOriginalWidth"]) {
+    const browser = await puppeteer.launch(launch_option);
+    try {
+        const page = await browser.newPage();
+        page.setDefaultTimeout(0);
+        await page.goto(`data:text/html;base64,${buffer.toString("base64")}`);
+        await addStyle(page);
+        //const export_path = await exportPath();
+        console.log(export_path);
+        let width;
+        let pageHeight;
+        await vscode.window.withProgress({ title: "Exporting PDF...", location: vscode.ProgressLocation.Notification }, async (progress, token) => {
             pageHeight = await page.evaluate(() => {
                 return Math.max(document.documentElement.clientHeight, document.documentElement.scrollHeight, document.body.clientHeight, document.body.scrollHeight);
             });
@@ -254,21 +247,17 @@ export async function exportPDF(fileUri?: any) {
                 return Math.max(document.documentElement.clientWidth, document.documentElement.scrollWidth, document.body.clientWidth, document.body.scrollWidth);
             });
             width = width_value.toString() + "px";
-
-        } else {
-            pageHeight = await getCorrectHeight(vscode.workspace.getConfiguration("full-height-pdf")["widthFormat"], md_text);
-        }
-
-        const pdf_option: puppeteer.PDFOptions = { path: export_path, width: width, height: pageHeight.toString() + "px", margin: { bottom: "1px" }, printBackground: true };
-        try {
-            await page.pdf(pdf_option);
-        } catch (e: any) {
-            await vscode.window.showErrorMessage("Error", { modal: true, detail: e.message });
-            return;
-        }
-        await page.close();
-        await browser.close();
-
-    });
+            const pdf_option: puppeteer.PDFOptions = { path: export_path, width: width, height: pageHeight.toString() + "px", margin: { bottom: "1px" }, printBackground: true };
+            try {
+                await page.pdf(pdf_option);
+            } catch (e: any) {
+                await vscode.window.showErrorMessage("Error", { modal: true, detail: e.message });
+                return;
+            }
+        });
+    } finally {
+        browser.close();
+        console.log("Close");
+    }
 
 }

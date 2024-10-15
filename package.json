@@ -20,38 +20,10 @@
           "default": "",
           "description": "Path of Chrome Executable"
         },
-        "full-height-pdf.exportPath": {
-          "type": "string",
-          "default": "",
-          "description": "PDF output Path (If this is not specified, the extension will prompt for the output location each time) "
-        },
         "full-height-pdf.PDFTitle": {
           "type": "string",
           "default": "",
           "description": "Title of exported PDF"
-        },
-        "full-height-pdf.widthFormat": {
-          "type": "string",
-          "enum": [
-            "Letter",
-            "Legal",
-            "Tabloid",
-            "Ledger",
-            "A0",
-            "A1",
-            "A2",
-            "A3",
-            "A4",
-            "A5",
-            "A6"
-          ],
-          "default": "A4",
-          "description": "Choose width of document (This is ignored if Use Original Width is enabled)"
-        },
-        "full-height-pdf.useOriginalWidth": {
-          "type": "boolean",
-          "default": true,
-          "description": "Export PDF with original Page Width (widthFormat is ignored if this is checked)"
         },
         "full-height-pdf.lineHeight": {
           "type": "string",
@@ -178,6 +150,6 @@
     "iconv-lite": "^0.6.3",
     "jschardet": "^3.1.4",
     "markdown-it": "^14.1.0",
-    "puppeteer-core": "^23.4.1"
+    "puppeteer-core": "^23.5.3"
   }
 }
