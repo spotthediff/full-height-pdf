@@ -3,6 +3,7 @@
   "displayName": "Full Height PDF",
   "description": "Export full height pdf",
   "version": "0.0.2",
+  "license": "MIT",
   "engines": {
     "vscode": "^1.93.0"
   },
@@ -157,3 +158,4 @@
     "puppeteer-core": "^23.5.3"
   }
 }
+
