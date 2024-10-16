@@ -6,7 +6,8 @@ The extension can export PDF from context menu of editor or explorer.
 
 ## Requirements
 - VSCode 1.93 or later
-- Installation of Google Chrome
+- Installation of Google Chrome   
+  In Windows, Google Chrome must be installed on C:\Program Files, (**not C:\Program Files(x86)**) or you must set *Executable Path* by yourself.  
 
 ## Extension Settings
 
