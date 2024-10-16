@@ -43,7 +43,7 @@ async function addStyle(page: puppeteer.Page): Promise<void> {
 
 }
 
-async function openWithEncodingDetect(filepath: string, force_encoding?: string): Promise<string> {
+async function openWithEncodingDetect(filepath: string, force_encoding: string): Promise<string> {
     const filestat = await fs.promises.stat(filepath);
     const filesize = filestat.size;
     const f = await fs.promises.open(filepath, "rs");
@@ -55,7 +55,7 @@ async function openWithEncodingDetect(filepath: string, force_encoding?: string)
         if (guess_encoding.encoding === "windows-1252") {
             encoding_name = "shift-jis";
         }
-        if (force_encoding) {
+        if (force_encoding !== "auto") {
             encoding_name = force_encoding;
         }
         const text_decoder = new TextDecoder(encoding_name, { fatal: false });
@@ -183,7 +183,7 @@ export async function exportPDF(fileUri?: any) {
         md_text = editor.document.getText();
     } else {
         try {
-            md_text = await openWithEncodingDetect(fileUri.fsPath);
+            md_text = await openWithEncodingDetect(fileUri.fsPath, vscode.workspace.getConfiguration("full-height-pdf")["encoding"]);
         } catch (e: any) {
             vscode.window.showErrorMessage("Error", { modal: true, detail: e.message });
             return;

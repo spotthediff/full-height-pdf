@@ -47,9 +47,9 @@
         },
         "full-height-pdf.encoding": {
           "type": "string",
-          "default": "none",
+          "default": "auto",
           "enum": [
-            "none",
+            "auto",
             "utf-8",
             "ibm866",
             "iso-8859-2",
