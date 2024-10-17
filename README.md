@@ -27,7 +27,7 @@ Specify the font family for `pre` and `code` tag. (CSS Font family Notation)
 Specify the title of exported PDF
 ### Style Sheet
 Path for the stylesheet that applied to exported PDF (This option has lower priority than each options in Setting),
-The style sheet must be encoded by *UTF-8 without BOM* or prefix [@charset](https://developer.mozilla.org/ja/docs/Web/CSS/@charset) with correct encoding
+The style sheet must be encoded by *UTF-8 without BOM* or prefix [@charset](https://developer.mozilla.org/ja/docs/Web/CSS/@charset) with correct encoding.
 
 ## Screen shots
 ![Full Height PDF on vscode explorer](images/full-height-pdf-explorer.png)
