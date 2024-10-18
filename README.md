@@ -15,8 +15,6 @@ The extension can export PDF from context menu of editor or explorer.
 Choose the encoding when open the file from vscode explorer context.
 ###  Executable Path
 Specify the path of Chrome executable to let the extension use another chrome installation.  
-### Export Path
-Specify the Path that you want to export. (If this is not specified, the extension will prompt for the output location each time) 
 ### General Font Family
 Specify the font family for `h*` and `td` tag. (CSS Font family notation)
 ### Line Height
